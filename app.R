@@ -266,7 +266,7 @@ notification <- function(data_temp) {
 }
 
 # a new styleColorBar with bar length proportional to value 
-# credit: https://stackoverflow.com/questions/56382522/why-datatable-breaks-the-last-bar-using-shiny
+# credit: Stéphane Laurent, https://stackoverflow.com/questions/56382522/why-datatable-breaks-the-last-bar-using-shiny
 styleColorBar2 <- function (data, color1, color2) 
 {
     M <- max(abs(data), na.rm = TRUE)
@@ -340,7 +340,7 @@ ui <- dashboardPage(
             menuItem('Change Stock Input Table', tabName = 'tab_table',
                      icon = icon('file-import')),
             menuItem('Source code', icon = icon('file-code-o'),
-                     href = 'https://github.com/tonypeng1/stock_public/', newtab = FALSE),
+                     href = 'https://github.com/tonypeng1/stock-public/', newtab = FALSE),
             menuItem('Price Change Notifications', 
                      tableOutput('notice'),
                      icon = icon('dog'),
