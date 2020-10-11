@@ -1,5 +1,5 @@
 # stock-public
-- This app reads an input file of stock symbols (like AAPL, AMZN, ... etc.) and downloads the price data for the last 5 years from Yahoo Finance, and creates bar charts and a customizable table with a variety of the stocks' statistics. The input list of symbols can be revised and the stock statistics are updated in realtime. 
+- This app reads an input file of stock symbols (like AAPL, AMZN, ... etc.) and downloads the price data in the last 5-years from Yahoo Finance, and creates bar charts and a customizable table with a variety of the stocks' statistics. You can revise the input list of symbols with the stock statistics updated in realtime.
 
 - The input stock symbol file can be updated by clicking the 'Change Stock Input Table' tab. Row(s) containing stock information can be removed or added and notes are directly added to the cells in the 'NOTES' column. After clicking the 'UPDATE AND SAVE TO FILE' button, new stock symbol data (if added) will be downloaded from Yahoo Finance and the stock charts and tables in other tabs will be updated, and the new input stock file will be uploaded to dropbox (overwrite the old one) for use in the future. 
 
