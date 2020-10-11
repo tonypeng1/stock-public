@@ -5,4 +5,4 @@
 
 - In the 'Stock Summary Table', if the price changes in the columns 'One_Day', 'One_Week', and 'Two_Weeks' are greater (less) than 10% (-10%) then the values will be in green (red). The same colors also apply to the price changes in the columns 'One_Month' and 'Two_Months' except that the thresholds are greater at 20% and -20%. It is easy to add other types of stock price statistics to customize this table if desirable.  
 
-- The drop-down box 'Price Change Notifications' include the one time period (in all the above time periods) that has the greatest price change of a stock symbol (+ or -) that satisfy the above thresholds.
+- The drop-down box 'Price Change Notifications' include the one time period (in all the above time periods) that has the greatest price change of a stock symbol (+ or -) that satisfies the above thresholds.
