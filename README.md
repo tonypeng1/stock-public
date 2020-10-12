@@ -3,7 +3,7 @@
 
 - The input stock symbol file can be updated by clicking the 'Change Stock Input Table' tab. Row(s) containing stock information can be removed or added and notes can be directly added to the cells in the 'NOTES' column. After clicking the 'UPDATE AND SAVE TO FILE' button, data of new stock symbol (if added) is downloaded from Yahoo Finance and the charts and tables are updated in realtime. The new input stock file is uploaded to dropbox (overwriting the old one) for use in the future. 
 
-- In the 'Stock Summary Table', if the price changes in the columns 'One_Day', 'One_Week', and 'Two_Weeks' are greater (less) than 10% (-10%) then the values will be in green (red). The same colors also apply to the price changes in the columns 'One_Month' and 'Two_Months' except that the thresholds are greater at 20% and -20%.   
+- In the 'Stock Summary Table', if the price changes in the columns 'One_Day', 'One_Week', and 'Two_Weeks' are greater (less) than 10% (-10%) the font of the value is change to green (red). The same colors also apply to the price changes in the columns 'One_Month' and 'Two_Months' except that the thresholds are set at greater values at 20% and -20%.   
 
 - The drop-down box 'Price Change Notifications' includes the one time period (in all the above periods) that has the greatest price change of a stock symbol (+ or -) that satisfies the above thresholds.
 
