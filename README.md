@@ -1,7 +1,7 @@
 # stock-public
 - This app reads a list of stock symbols (like AAPL, AMZN, ... etc.) and downloads the price data in the last 5-years from Yahoo Finance. It creates bar charts and a customizable table with a variety of statistics. You can revise the symbols and having the stock statistics updated in realtime.
 
-- The input stock symbol file can be updated by clicking the 'Change Stock Input Table' tab. Row(s) containing stock information can be removed or added and notes are directly added to the cells in the 'NOTES' column. After clicking the 'UPDATE AND SAVE TO FILE' button, new stock symbol data (if added) will be downloaded from Yahoo Finance and the stock charts and tables in other tabs will be updated, and the new input stock file will be uploaded to dropbox (overwrite the old one) for use in the future. 
+- The input stock symbol file can be updated by clicking the 'Change Stock Input Table' tab. Row(s) containing stock information can be removed or added and notes can be directly added to the cells in the 'NOTES' column. After clicking the 'UPDATE AND SAVE TO FILE' button, data of new stock symbol (if added) is downloaded from Yahoo Finance and the charts and tables are updated in realtime. The new input stock file is uploaded to dropbox (overwriting the old one) for use in the future. 
 
 - In the 'Stock Summary Table', if the price changes in the columns 'One_Day', 'One_Week', and 'Two_Weeks' are greater (less) than 10% (-10%) then the values will be in green (red). The same colors also apply to the price changes in the columns 'One_Month' and 'Two_Months' except that the thresholds are greater at 20% and -20%.   
 
