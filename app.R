@@ -500,7 +500,7 @@ server <- function(input, output, session) {
                 datatable(rv$data,  
                           options = list(pageLength = 17,
                                       lengthMenu=c(5,10,25,50,100),
-                                      autoWidth = TRUE,
+                                      autoWidth = FALSE,
                                       scrollX = TRUE,
                                       columnDefs = list(list(width='12%',
                                                              targets=c(11))),
