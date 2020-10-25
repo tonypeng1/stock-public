@@ -405,7 +405,7 @@ ui <- dashboardPage(
                                 svae this table as the stock input file for use in 
                                 the future.",
                                 status = 'primary', solidHeader = TRUE, width = 5,
-                                rHandsontableOutput('table_change', width = "150%")
+                                rHandsontableOutput('table_change', width = "350%")
                                 ),
                             actionButton('update', 'UPDATE AND SAVE TO FILE'),
                             )
@@ -539,9 +539,40 @@ server <- function(input, output, session) {
     })
     
     output$table_change <- renderRHandsontable(
-        rhandsontable(rv$input, width = 400) %>% 
-            hot_cols(columnSorting = TRUE)
-    )
+        rhandsontable(rv$input, width = 400))
+
+    rv_h <- reactiveValues(row = c(), col = c())
+    
+    observeEvent(input$table_change$changes$changes, {
+        
+        rv_h$row <- c(rv_h$row, input$table_change$changes$changes[[1]][[1]])
+        rv_h$col <- c(rv_h$col, input$table_change$changes$changes[[1]][[2]])
+        
+        output$table_change <- renderRHandsontable({
+            
+            rhandsontable(hot_to_r(input$table_change), row_highlight = rv_h$row, 
+                          col_highlight = rv_h$col, width = 800) %>% 
+                hot_cols(
+                    renderer = "
+                     function(instance, td, row, col, prop, value, cellProperties) {
+                     Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+                     if (instance.params) {
+                     hrows = instance.params.row_highlight;
+                     hrows = hrows instanceof Array ? hrows : [hrows];
+                     
+                     hcols = instance.params.col_highlight;
+                     hcols = hcols instanceof Array ? hcols : [hcols];
+                     }
+
+                     for (let i = 0; i < hrows.length; i++) {
+                        if (instance.params && hrows[i] == row && hcols[i] == col) {
+                        td.style.background = 'pink';
+                            }
+                        }
+                     }")
+        })
+    })
     
     output$stock <- renderInfoBox({
         name <- input$ticket  # get ticket name
