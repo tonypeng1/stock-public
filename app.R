@@ -206,13 +206,13 @@ notification <- function(data_temp) {
                 if (per < -0.1) {
                     if (per < change_min) {
                         change_min <- per
-                        range_min <- '1 week'
+                        range_min <- '2 weeks'
                     }
                 }
                 else if (per > 0.1) {
                     if (per > change_max) {
                         change_max <- per
-                        range_max <- '1 week'
+                        range_max <- '2 weeks'
                     }
                 }
             }
