@@ -292,6 +292,7 @@ years_ago <- as.Date(t)
 symbols_data <- drop_read_csv('public.csv')
 symbols_data <- symbols_data %>% arrange(SYMBOLS)
 symbols <- symbols_data$SYMBOLS
+symbols_names <- symbols_data$NAMES # (10/24/2021: add the stock full name to the stock chart.)
 len <- length(symbols)
 
 if (class(symbols_data$NOTES) != 'character') {
@@ -365,7 +366,8 @@ ui <- dashboardPage(
                             infoBoxOutput('change_1', width = 3)
                         ),
                         fluidRow(
-                                tabBox(title = 'Time Range',
+                                tabBox(title = textOutput('symbol_name'), 
+                                       # (10/24/2021: add the stock full name to the stock chart.)
                                        id = 'tabset1',
                                        selected = '1 year',
                                        width = 10,
@@ -609,6 +611,13 @@ server <- function(input, output, session) {
         infoBox('1 Day Change', output, icon = icon('chart-line'), 
                 color = 'yellow')
     })
+    
+    output$symbol_name <- renderText({
+        name <- input$ticket  # get ticket name
+        position <- match(name, rv$symbol)  # get ticket position in symbols
+        full_name <- symbols_names[[position]] # get symbol's full name
+    })
+    # (10/24/2021: to add the stock full name to the stock chart.)
     
     observe(
         if (input$tabset1 == '5 days') {
