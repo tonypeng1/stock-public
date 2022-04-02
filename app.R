@@ -326,9 +326,11 @@ for (i in seq(ite)) {
 
 data_list <- mget(symbols, envir = data)  # convert files in env to a list of xts
 
-# Added 9-25-2021 to fill NA data from Yahoo so the code won't crash
+# Added 9-25-2021 to fill NA data from Yahoo so the code won't crash (data cleaning)
 for (i in 1:length(data_list)) {
     data_list[[i]] <- na.approx(data_list[[i]])
+    data_list[[i]] <- data_list[[i]][!duplicated(index(data_list[[i]])), ]
+    # (Added 4-2-2022 to remove duplicated rows with the same date to clean the data)
 }
 
 date_last <- last(index(data_list[[1]]))  # find the last day in data 
