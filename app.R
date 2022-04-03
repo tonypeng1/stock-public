@@ -288,41 +288,27 @@ t$year <- t$year - 5
 years_ago <- as.Date(t)
 
 # Read the stock symbol names and notes to be analyzed.
-# symbols_data <- read.csv('public.csv')
 symbols_data <- drop_read_csv('public.csv')
-symbols_data <- symbols_data %>% arrange(SYMBOLS)
 symbols <- symbols_data$SYMBOLS
-symbols_names <- symbols_data$NAMES # (10/24/2021: add the stock full name to the stock chart.)
-len <- length(symbols)
 
 if (class(symbols_data$NOTES) != 'character') {
     for (i in seq(len)) {symbols_data$NOTES[i] <- ''}
 }
 
-# Load stock data from yahoo. Split stock symbols into groups of 5 to avoid
-# needing to wait 1 sec for symbols >= 5.
-
-mod <- len %/% 5
-rem <- len %% 5
-
-if (rem == 0) {
-    ite = mod
-} else {
-    ite = mod + 1
-}
-
 data <- new.env()
-for (i in seq(ite)) {
-    j <- i + (i - 1) * 4  # start
-    if (i != ite) {
-        getSymbols(symbols[j : (j + 4)], env = data, src = 'yahoo',
-                   from = years_ago, to = today, auto.assign = TRUE)
-    }
-    else {
-        getSymbols(symbols[j : len], env = data, src = 'yahoo',
-                   from = years_ago, to = today, auto.assign = TRUE)
-    }
-}
+sapply(symbols, function(x){
+    try(
+    getSymbols(x, env = data, src = 'yahoo', from = years_ago, 
+               to = today, auto.assign = TRUE), silent = TRUE)
+    }  # try() will ignore the error message if a symbol does not exist and cannot be loaded
+    )
+
+symbols <- ls(data)  # reassign symbols if there are a (or more) SYMBOL not existing in Yahoo database 
+
+symbols_data <- symbols_data %>% filter(SYMBOLS %in% symbols )  # reassign in case symbols different
+symbols_data <- symbols_data %>% arrange(SYMBOLS)  # order SYMBOLS
+symbols_names <- symbols_data$NAMES
+len <- length(symbols)
 
 data_list <- mget(symbols, envir = data)  # convert files in env to a list of xts
 
