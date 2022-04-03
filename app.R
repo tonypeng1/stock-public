@@ -292,7 +292,7 @@ symbols_data <- drop_read_csv('public.csv')
 symbols <- symbols_data$SYMBOLS
 
 if (class(symbols_data$NOTES) != 'character') {
-    for (i in seq(len)) {symbols_data$NOTES[i] <- ''}
+    for (i in seq(length(symbols)) {symbols_data$NOTES[i] <- ''}
 }
 
 data <- new.env()
