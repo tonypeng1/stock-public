@@ -12,6 +12,7 @@ library(DT)
 library(rhandsontable)
 library(diffr)
 library(rdrop2)
+library(spsComps)
 
 
 # This function return % stock price change between the last day and the "start" date.
@@ -124,6 +125,8 @@ table_build <- function(data_list_temp, symbols_data_temp) {
                 note <- temp$NOTES
             }
         }
+        
+        # browser()
         df_temp <- rbind(df_temp, list(Symbol = name,
                                        One_Day = output_1_day,
                                        One_Week = output_1_week,
@@ -288,38 +291,14 @@ t$year <- t$year - 5
 years_ago <- as.Date(t)
 
 # Read the stock symbol names and notes to be analyzed.
+
 symbols_data <- drop_read_csv('public.csv')
 symbols <- symbols_data$SYMBOLS
 
 if (class(symbols_data$NOTES) != 'character') {
-    for (i in seq(length(symbols)) {symbols_data$NOTES[i] <- ''}
+    for (i in seq(len)) {symbols_data$NOTES[i] <- ''}
 }
 
-data <- new.env()
-sapply(symbols, function(x){
-    try(
-    getSymbols(x, env = data, src = 'yahoo', from = years_ago, 
-               to = today, auto.assign = TRUE), silent = TRUE)
-    }  # try() will ignore the error message if a symbol does not exist and cannot be loaded
-    )
-
-symbols <- ls(data)  # reassign symbols if there are a (or more) SYMBOL not existing in Yahoo database 
-
-symbols_data <- symbols_data %>% filter(SYMBOLS %in% symbols )  # reassign in case symbols different
-symbols_data <- symbols_data %>% arrange(SYMBOLS)  # order SYMBOLS
-symbols_names <- symbols_data$NAMES
-len <- length(symbols)
-
-data_list <- mget(symbols, envir = data)  # convert files in env to a list of xts
-
-# Added 9-25-2021 to fill NA data from Yahoo so the code won't crash (data cleaning)
-for (i in 1:length(data_list)) {
-    data_list[[i]] <- na.approx(data_list[[i]])
-    data_list[[i]] <- data_list[[i]][!duplicated(index(data_list[[i]])), ]
-    # (Added 4-2-2022 to remove duplicated rows with the same date to clean the data)
-}
-
-date_last <- last(index(data_list[[1]]))  # find the last day in data 
 
 
 # Shiny
@@ -339,78 +318,112 @@ ui <- dashboardPage(
                      tableOutput('notice'),
                      icon = icon('dog'),
                      newtab = FALSE)
-                ),
-            width = 270
-            ),
-
+        ),
+        width = 270
+    ),
+    
     dashboardBody(
         tabItems(
-                tabItem(tabName = 'dashboard',
-                        fluidRow(
-                            infoBoxOutput('stock', width = 2),
-                            infoBoxOutput('date', width = 2),
-                            infoBoxOutput('value', width = 2),
-                            infoBoxOutput('change', width = 3),
-                            infoBoxOutput('change_1', width = 3)
+            tabItem(tabName = 'dashboard',
+                    fluidRow(
+                        infoBoxOutput('stock', width = 2),
+                        infoBoxOutput('date', width = 2),
+                        infoBoxOutput('value', width = 2),
+                        infoBoxOutput('change', width = 3),
+                        infoBoxOutput('change_1', width = 3)
+                    ),
+                    fluidRow(
+                        tabBox(title = textOutput('symbol_name'), 
+                               # (10/24/2021: add the stock full name to the stock chart.)
+                               id = 'tabset1',
+                               selected = '1 year',
+                               width = 10,
+                               tabPanel('5 days',
+                                        plotOutput('plot_1', height = 600)),
+                               tabPanel('1 month',
+                                        plotOutput('plot_2', height = 600)),
+                               tabPanel('2 months',
+                                        plotOutput('plot_3', height = 600)),
+                               tabPanel('6 months',
+                                        plotOutput('plot_4', height = 600)),
+                               tabPanel('YTD',
+                                        plotOutput('plot_5', height = 600)),
+                               tabPanel('1 year',
+                                        plotOutput('plot_6', height = 600)),
+                               tabPanel('2 years',
+                                        plotOutput('plot_7', height = 600)),
+                               tabPanel('5 years',
+                                        plotOutput('plot_8', height = 600))
                         ),
-                        fluidRow(
-                                tabBox(title = textOutput('symbol_name'), 
-                                       # (10/24/2021: add the stock full name to the stock chart.)
-                                       id = 'tabset1',
-                                       selected = '1 year',
-                                       width = 10,
-                                       tabPanel('5 days',
-                                                plotOutput('plot_1', height = 600)),
-                                       tabPanel('1 month',
-                                                plotOutput('plot_2', height = 600)),
-                                       tabPanel('2 months',
-                                                plotOutput('plot_3', height = 600)),
-                                       tabPanel('6 months',
-                                                plotOutput('plot_4', height = 600)),
-                                       tabPanel('YTD',
-                                                plotOutput('plot_5', height = 600)),
-                                       tabPanel('1 year',
-                                                plotOutput('plot_6', height = 600)),
-                                       tabPanel('2 years',
-                                                plotOutput('plot_7', height = 600)),
-                                       tabPanel('5 years',
-                                                plotOutput('plot_8', height = 600))
-                                        ),
-                                box(title = 'Stock Symbol', status = 'primary', 
-                                    solidHeader = TRUE, width = 2,
-                                    selectInput(inputId = 'ticket',
-                                                label = '',
-                                                choices = symbols
-                                                ),
-                                                selected = symbols[1])
-                                )
+                        box(title = 'Stock Symbol', status = 'primary', 
+                            solidHeader = TRUE, width = 2,
+                            selectInput(inputId = 'ticket',
+                                        label = '',
+                                        choices = symbols
                             ),
-                tabItem(tabName = 'widgets',
-                        box(title = textOutput('table_title'),
-                            status = 'primary', solidHeader = TRUE,
-                            div(DTOutput('table'), style = "font-size: 90%; width: 90%"),
-                            width = 12
-                            )
-                        ),
-                tabItem(tabName = 'tab_table',
-                        fluidRow(
-                            box(title = "Make changes and click 'UPDATE AND SAVE 
+                            selected = symbols[1])
+                    )
+            ),
+            tabItem(tabName = 'widgets',
+                    box(title = textOutput('table_title'),
+                        status = 'primary', solidHeader = TRUE,
+                        div(DTOutput('table'), style = "font-size: 90%; width: 90%"),
+                        width = 12
+                    )
+            ),
+            tabItem(tabName = 'tab_table',
+                    fluidRow(
+                        box(title = "Make changes and click 'UPDATE AND SAVE 
                                 TO FILE' to update the current stock summary table, 
                                 stock chart, and price change notification, and to 
                                 svae this table as the stock input file for use in 
                                 the future.",
-                                status = 'primary', solidHeader = TRUE, width = 5,
-                                rHandsontableOutput('table_change', width = "350%")
-                                ),
-                            actionButton('update', 'UPDATE AND SAVE TO FILE'),
-                            )
-                        )
-                )
+                            status = 'primary', solidHeader = TRUE, width = 5,
+                            rHandsontableOutput('table_change', width = "350%")
+                        ),
+                        actionButton('update', 'UPDATE AND SAVE TO FILE'),
+                    )
             )
+        )
+    )
 )
 
 server <- function(input, output, session) {
     
+    data <- new.env()
+    
+    sapply(symbols, function(x){
+        tryCatch({
+            getSymbols(x, env = data, src = 'yahoo', from = years_ago, to = today, auto.assign = TRUE)
+            shinyCatch(message(paste('Loading data from Yahoo finance : ', x)))
+            },
+            error = function(e) {
+                shinyCatch(warning(paste('Yahoo finance API not responding : ', x, 
+                                         ' (', gsub('[.]', '', tolower(e$message)), ')')))
+            }
+        )
+    }  # try() will ignore the error message if a symbol does not exist and cannot be loaded
+    )
+    
+    symbols <- ls(data)  # reassign symbols if there are a (or more) SYMBOL not existing in Yahoo database 
+    
+    symbols_data <- symbols_data %>% filter(SYMBOLS %in% symbols )  # reassign in case symbols different
+    symbols_data <- symbols_data %>% arrange(SYMBOLS)  # order SYMBOLS
+    symbols_names <- symbols_data$NAMES
+    len <- length(symbols)
+    
+    data_list <- mget(symbols, envir = data)  # convert files in env to a list of xts
+    
+    # Added 9-25-2021 to fill NA data from Yahoo so the code won't crash (data cleaning)
+    for (i in 1:length(data_list)) {
+        data_list[[i]] <- na.approx(data_list[[i]])
+        data_list[[i]] <- data_list[[i]][!duplicated(index(data_list[[i]])), ]
+        # (Added 4-2-2022 to remove duplicated rows with the same date)
+    }
+    
+    date_last <- last(index(data_list[[1]]))  # find the last day in data 
+    
+
     rv <- reactiveValues(input = symbols_data,  # input table
                          symbol = symbols,  #  all symbols
                          raw = data_list,  # list of xts
@@ -492,33 +505,33 @@ server <- function(input, output, session) {
     # (table_change can be used as both input and output)
     
     output$table <- renderDT({
-                datatable(rv$data,  
-                          options = list(pageLength = 17,
-                                      lengthMenu=c(5,10,25,50,100),
-                                      autoWidth = FALSE,
-                                      scrollX = TRUE,
-                                      columnDefs = list(list(width='12%',
-                                                             targets=c(11))),
-                                      lengthChange = FALSE)) %>% 
-                          # rownames = FALSE) %>%
-                formatPercentage(c('One_Day', 'One_Week', 'Two_Weeks', 'One_Month',
-                                   'Two_Months'), 1
-                ) %>% 
-                formatCurrency(c('Current_Price', 'One_Year_Low', 'One_Year_High')
-                ) %>% 
-                formatStyle('Current_in_One_Year',
-                            background = styleColorBar2(rv$data$'Current_in_One_Year',
-                                                       'red', 'lightblue'),
-                            backgroundSize = '100% 70%',
-                            backgroundRepeat = 'no-repeat',
-                            backgroundPosition ='left'
-                ) %>%
-                formatStyle(c('One_Day', 'One_Week', 'Two_Weeks'),
-                            color = styleInterval(c(-0.1, 0.1), c('red', 'black', 'green'))
-                ) %>%
-                formatStyle(c('One_Month', 'Two_Months'),
-                            color = styleInterval(c(-0.2, 0.2), c('red', 'black', 'green')))
-        }
+        datatable(rv$data,  
+                  options = list(pageLength = 17,
+                                 lengthMenu=c(5,10,25,50,100),
+                                 autoWidth = FALSE,
+                                 scrollX = TRUE,
+                                 columnDefs = list(list(width='12%',
+                                                        targets=c(11))),
+                                 lengthChange = FALSE)) %>% 
+            # rownames = FALSE) %>%
+            formatPercentage(c('One_Day', 'One_Week', 'Two_Weeks', 'One_Month',
+                               'Two_Months'), 1
+            ) %>% 
+            formatCurrency(c('Current_Price', 'One_Year_Low', 'One_Year_High')
+            ) %>% 
+            formatStyle('Current_in_One_Year',
+                        background = styleColorBar2(rv$data$'Current_in_One_Year',
+                                                    'red', 'lightblue'),
+                        backgroundSize = '100% 70%',
+                        backgroundRepeat = 'no-repeat',
+                        backgroundPosition ='left'
+            ) %>%
+            formatStyle(c('One_Day', 'One_Week', 'Two_Weeks'),
+                        color = styleInterval(c(-0.1, 0.1), c('red', 'black', 'green'))
+            ) %>%
+            formatStyle(c('One_Month', 'Two_Months'),
+                        color = styleInterval(c(-0.2, 0.2), c('red', 'black', 'green')))
+    }
     )
     
     output$notice <- renderTable({
@@ -527,7 +540,7 @@ server <- function(input, output, session) {
     
     output$table_title <- renderText({
         paste0(
-        'Stock Price Changes (in %) in Different Time Ranges, Current Price, 
+            'Stock Price Changes (in %) in Different Time Ranges, Current Price, 
         1-Year High and Low, and Current Price Location in 1-Year 
         High and Low (', toString(date_last), ')')
         
@@ -535,7 +548,7 @@ server <- function(input, output, session) {
     
     output$table_change <- renderRHandsontable(
         rhandsontable(rv$input, width = 400))
-
+    
     rv_h <- reactiveValues(row = c(), col = c())
     
     observeEvent(input$table_change$changes$changes, {
@@ -614,17 +627,17 @@ server <- function(input, output, session) {
             price <- rv$raw[[position]]  # get the corresponding xts
             start <- xts::last(index(price), 5)[1]  # 5 days ago
             PRICE <- price[paste(start, "", sep = "/")]  # set data range
-                
+            
             output$plot_1 <- renderPlot({
                 candleChart(PRICE, up.col = 'green', dn.col = 'red', theme = 'white')
-                })
+            })
             output$change_1 <- renderInfoBox({
                 output <- percentage(name, price, start, 'string')
                 title <- paste(input$tabset1, 'change', sep = ' ')
                 infoBox(title, output, icon = icon('chart-line'), 
                         color = 'yellow')
             })
-            }
+        }
         else if (input$tabset1 == '1 month') {
             name <- input$ticket  # get ticket name
             position <- match(name, rv$symbol)  # get ticket position in symbols
@@ -634,13 +647,13 @@ server <- function(input, output, session) {
             
             output$plot_2 <- renderPlot({
                 candleChart(PRICE, up.col = 'green', dn.col = 'red', theme = 'white')
-                })
+            })
             output$change_1 <- renderInfoBox({
                 output <- percentage(name, price, start, 'string')
                 title <- paste(input$tabset1, 'change', sep = ' ')
                 infoBox(title, output, icon = icon('chart-line'), color = 'yellow')
             })
-            }
+        }
         else if (input$tabset1 == '2 months') {
             name <- input$ticket  # get ticket name
             position <- match(name, rv$symbol)  # get ticket position in symbols
@@ -666,13 +679,13 @@ server <- function(input, output, session) {
             
             output$plot_4 <- renderPlot({
                 candleChart(PRICE, up.col = 'green', dn.col = 'red', theme = 'white')
-                })
+            })
             output$change_1 <- renderInfoBox({
                 output <- percentage(name, price, start, 'string')
                 title <- paste(input$tabset1, 'change', sep = ' ')
                 infoBox(title, output, icon = icon('chart-line'), color = 'yellow')
             })
-            }
+        }
         else if (input$tabset1 == 'YTD') {
             name <- input$ticket  # get ticket name
             position <- match(name, rv$symbol)  # get ticket position in symbols
@@ -683,13 +696,13 @@ server <- function(input, output, session) {
             
             output$plot_5 <- renderPlot({
                 candleChart(PRICE, up.col = 'green', dn.col = 'red', theme = 'white')
-                })
+            })
             output$change_1 <- renderInfoBox({
                 output <- percentage(name, price, start, 'string')
                 title <- paste(input$tabset1, 'change', sep = ' ')
                 infoBox(title, output, icon = icon('chart-line'), color = 'yellow')
             })
-            }
+        }
         else if (input$tabset1 == '1 year') {
             # browser()
             name <- input$ticket  # get ticket name
@@ -702,7 +715,7 @@ server <- function(input, output, session) {
             
             output$plot_6 <- renderPlot({
                 candleChart(PRICE, up.col = 'green', dn.col = 'red', theme = 'white')
-                })
+            })
             output$change_1 <- renderInfoBox({
                 
                 output <- percentage(name, price, start, 'string')
@@ -744,7 +757,7 @@ server <- function(input, output, session) {
                 infoBox(title, output, icon = icon('chart-line'), color = 'yellow')
             })
         }
-        )
-    }
+    )
+}
 
 shinyApp(ui, server)
